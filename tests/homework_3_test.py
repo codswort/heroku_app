@@ -1,20 +1,20 @@
 import pytest
+from pathlib import Path
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.select import Select
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.wait import WebDriverWait
 
 
-@pytest.mark.basic
-def test_dropdown(browser):
-    browser.get("https://the-internet.herokuapp.com/dropdown")
-    dropdown = browser.find_element(By.ID, "dropdown")
+@pytest.mark.advanced
+def test_file_upload(driver):
+    driver.get("https://the-internet.herokuapp.com/upload")
+    file_path = Path("test_file.txt").resolve()
 
-    select = Select(dropdown)
-    options = select.options
+    upload_element = driver.find_element(By.CSS_SELECTOR, "[id='file-upload']")
+    upload_element.send_keys(str(file_path))
+    upload_button = driver.find_element(By.CSS_SELECTOR, "[id='file-submit']")
+    upload_button.click()
+    uploaded_files = (WebDriverWait(driver, 10)
+     .until(EC.visibility_of_element_located((By.CSS_SELECTOR, "[id='uploaded-files']"))))
 
-    assert len(options) == 3, "There should be 3 options"
-
-    select.select_by_index(1)
-    assert options[1].is_selected(), "There should be selected 1 option"
-
-    select.select_by_index(2)
-    assert options[2].is_selected(), "There should be selected 2 option"
+    assert uploaded_files.text == file_path.name

@@ -1,16 +1,16 @@
 import pytest
+from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
 
 
 @pytest.mark.advanced
-def test_add_remove_elements(driver):
-    driver.get("https://the-internet.herokuapp.com/context_menu/")
+def test_context_menu(driver):
+    driver.get("https://the-internet.herokuapp.com/context_menu")
     actions = ActionChains(driver)
-    add_element = driver.find_element(By.XPATH, "//button[text()='Add Element']")
+    box_below = driver.find_element(By.CSS_SELECTOR, "[id='hot-spot']")
 
-    add_element.click()
-    add_element.click()
+    actions.context_click(box_below).perform()
+    alert = driver.switch_to.alert
 
-    delete_elements = driver.find_elements(By.XPATH, "//button[text()='Delete']")
-
-    assert len(delete_elements) == 2, "There should be 2 elements"
+    assert alert.text == 'You selected a context menu'
+    alert.accept()
